@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS password(
+    idPassword INT PRIMARY KEY AUTO_INCREMENT,
+    appName VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(200) NOT NULL
+);
