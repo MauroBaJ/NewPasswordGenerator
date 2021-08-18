@@ -30,7 +30,7 @@ def genRandomPassword():
 db = mysql.connector.connect(
     host = 'localhost',
     user = 'admin',
-    password = '', ## Añade tu contraseña
+    password = 'Mauricio2305',
     database = 'password_gen'
 )
 
