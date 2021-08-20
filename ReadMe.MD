@@ -60,7 +60,7 @@ def pickRandomWords(number):
     return pw
 ```
 ___
-Esta funcion le pide al usuario un dato para saber cuantas palabras debe concatenar, y es la que se llamara desde el menu
+Esta funcion le pide al usuario un dato para saber cuantas palabras debe concatenar, y es la que se llamara desde el menu. Se le pide al usuario de 4 a 8 palabras por los limites que puede llegar a tener el sistema de contraseñas de algunos sitios, sin embargo, pueden ser mas o menos.
 ```
 def genRandomPassword():
     print("Cuantas palabras desea? Eliga de 4 a 8")
@@ -83,3 +83,92 @@ def generate_key():
 if(path.exists("secret.key") == False):
     generate_key()
 ```
+____
+La siguiente funcion solo carga la llave de encripcion para las siguientes.
+```
+def load_key():
+    return open("secret.key", "rb").read()
+```
+___
+### Encripcion y Desencripcion
+___
+La primera funcion es la de encriptar la contraseña que se le pase. Convierte el texto a formato de bytes, y luego utiliza las funciones de fermet para encriptarla.
+```
+def encrypt_password(password):
+    key = load_key()
+    password = bytes(password, 'utf-8')
+    f = Fernet(key)
+    encrypted_password = f.encrypt(password)
+    return encrypted_password
+```
+La funcion de desencripcion es similar, pero en reversa. Cabe aclarar que la conversion de bytes a texto sucede al momento de hacer el fetch de la base de datos.
+```
+def decrypt_password(text):
+    key = load_key()
+    f = Fernet(key)
+    decrypted_message= f.decrypt(text)
+    password = decrypted_message.decode()
+    return password
+
+```
+___
+### Menu y Switch
+Estas funciones son, como lo indica el titulo, el menu de opciones con las que cuenta el usuario, y la validacion de que opcion eligio el usuario.
+```
+def menu():
+    opc = 0
+    while( opc == 0):
+        print('\n\n')
+        print('________________________________________________________')
+        print('1 - Ver Contraseñas\n')
+        print('2 - Editar Contraseñas\n')
+        print('3 - Crear nueva contraseña\n')
+        print('4 - Eliminar Contraseñas\n')
+        print('5 - Salir\n')
+        print('\n\n')
+        opc = int(input())
+        val = checkForOption(opc)
+    return
+```
+```
+def checkForOption(opc):
+    if( opc > 5): return 0
+    elif(opc == 1):
+        #READ
+        opc1()
+    elif(opc == 2):
+        #UPDATE
+        opc2()
+    elif(opc == 3):
+        #CREATE
+        opc3()
+    elif(opc == 4):
+        #DELETE
+        opc4()
+    elif(opc == 5):
+        return 1
+    return 1
+```
+___
+
+### Las opciones y el CRUD
+____
+En esta seccion se detallara el CRUD que realiza el programa sobre la base de datos. Por motivos desconocidos para mi, realize la operacion de insercio en una funcion a parte de su opcion.
+___
+#### Opcion 1 - Read
+El programa realiza una consulta a la base de datos a partir de palabras similares a su busqueda. EN caso de contar con mas de un resultado obtenido se impimirán en el  for loop. Se convierte el resultado del query a un diccionario para tener la facilidad de imprimirlo mas tarde.
+```
+def opc1():
+    print("De que servicio desea ver sus credenciales? ")
+    service = input()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM passwords WHERE LOWER(appName) LIKE LOWER('%" + service +"%')")
+    results = cursor.fetchall()
+    for result in results:
+        print("Usuario: " + result["username"])
+        pw = bytes(result['password'], 'utf-8')
+        print("Password: " + decrypt_password(pw))
+    return 
+```
+___
+#### Opcion 2   -   Update
